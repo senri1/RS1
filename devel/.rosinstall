@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/ros_user/catkin_ws_cw1/devel/setup.sh

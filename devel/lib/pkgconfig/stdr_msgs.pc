@@ -1,0 +1,8 @@
+prefix=/home/ros_user/catkin_ws_cw1/devel
+
+Name: stdr_msgs
+Description: Description of stdr_msgs
+Version: 0.3.2
+Cflags: -I/home/ros_user/catkin_ws_cw1/devel/include
+Libs: -L/home/ros_user/catkin_ws_cw1/devel/lib 
+Requires: message_runtime std_msgs geometry_msgs actionlib_msgs nav_msgs
