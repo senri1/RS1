@@ -17,9 +17,9 @@ goal = (20, 0)
 
 # *** Leave only the planner you want to use uncommented. ***
 
-planner = ASTAR0Planner('A* 0', occupancyGrid);
+#planner = ASTAR0Planner('A* 0', occupancyGrid);
 #planner = ASTARCPlanner('A* C', occupancyGrid);
-#planner = ASTARL2Planner('A* Euclidean', occupancyGrid);
+planner = ASTARL2Planner('A* Euclidean', occupancyGrid);
 #planner = ASTAROCTILEPlanner('A* Octile', occupancyGrid);
 #planner = ASTARMANPlanner('A* Manhatten', occupancyGrid);
 

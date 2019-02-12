@@ -76,6 +76,16 @@ class GeneralForwardSearchAlgorithm(PlannerBase):
         L = sqrt(dX * dX + dY * dY)
         
         return L
+	
+	#Computes the angle needed to turn through to go from parent to child cell
+    def computeAngleTurned(self,parentCell, cell):
+	if(parentCell == None):
+		return 0
+	else:
+		dX = cell.coords[0] - parentCell.coords[0]
+        	dY = cell.coords[1] - parentCell.coords[1]
+		angleTurned = atan2(dY,dX)
+		return angleTurned
         
     # The main search routine. The routine searches for a path between a given
     # set of coordinates. These are then converted into start and destination
@@ -171,6 +181,9 @@ class GeneralForwardSearchAlgorithm(PlannerBase):
 
         # Construct the path object and mark if the goal was reached
         path = PlannedPath()
+		
+	currentAngle = 0
+	previousAngle = 0
         
         path.goalReached = self.goalReached
         
@@ -180,13 +193,18 @@ class GeneralForwardSearchAlgorithm(PlannerBase):
         # Start at the goal and find the parent. Find the cost associated with the parent
         cell = pathEndCell.parent
         path.travelCost = self.computeLStageAdditiveCost(pathEndCell.parent, pathEndCell)
-        
+	currentAngle = self.computeAngleTurned(pathEndCell.parent, pathEndCell)       
+	
+
         # Iterate back through and extract each parent in turn and add
         # it to the path. To work out the travel length along the
         # path, you'll also have to add self at self stage.
         while (cell is not None):
             path.waypoints.appendleft(cell)
+	    previousAngle = currentAngle
+       	    currentAngle = self.computeAngleTurned(cell.parent,cell)
             path.travelCost = path.travelCost + self.computeLStageAdditiveCost(cell.parent, cell)
+  	    path.angleTurned = path.angleTurned + abs(currentAngle-previousAngle)
             cell = cell.parent
             
         # Update the stats on the size of the path
@@ -199,6 +217,7 @@ class GeneralForwardSearchAlgorithm(PlannerBase):
 
         print "Path travel cost = " + str(path.travelCost)
         print "Path cardinality = " + str(path.numberOfWaypoints)
+	print "Total angle turned in degrees = " + str(degrees(path.angleTurned))
         
         # Draw the path if requested
         if (self.showGraphics == True):

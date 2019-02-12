@@ -9,6 +9,9 @@ from collections import deque
 
 class ASTARL2Planner(CellBasedForwardSearch):
 
+    # Define the weight
+    weight = 1	
+
     # Construct the new planner object
     def __init__(self, title, occupancyGrid):
         CellBasedForwardSearch.__init__(self, title, occupancyGrid)
@@ -18,7 +21,7 @@ class ASTARL2Planner(CellBasedForwardSearch):
     def pushCellOntoQueue(self, cell):
 	self.astarL2Queue.append(cell)
 	if(cell.parent != None):
-		cell.pathCost = cell.parent.pathCost + self.computeLStageAdditiveCost(cell.parent,cell) + self.computeLStageAdditiveCost(self.goal,cell) 
+		cell.pathCost = cell.parent.pathCost + self.computeLStageAdditiveCost(cell.parent,cell) + self.weight * self.computeLStageAdditiveCost(self.goal,cell) 
 	self.astarL2Queue.sort(key = self.distance)
 
     # Check the queue size is zero
@@ -33,7 +36,7 @@ class ASTARL2Planner(CellBasedForwardSearch):
     # If a cell is visited again replace the previous parent cell with current 
     # parent cell if the cost to come + cost to goal is lower for the current parent.
     def resolveDuplicate(self, cell, parentCell):
-	predicted_path_cost = parentCell.pathCost + self.computeLStageAdditiveCost(parentCell,cell) + self.computeLStageAdditiveCost(self.goal,cell) 
+	predicted_path_cost = parentCell.pathCost + self.computeLStageAdditiveCost(parentCell,cell) + self.weight * self.computeLStageAdditiveCost(self.goal,cell) 
 	if(predicted_path_cost < cell.pathCost):
 		cell.parent = parentCell
 		cell.pathCost = predicted_path_cost

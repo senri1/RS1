@@ -20,7 +20,7 @@ planner.setWindowHeightInPixels(400)
 goalReached = planner.search(start, goal)
 
 path = planner.extractPathToGoal()
-#planner.extractPathEndingAtCoord((5,2))
+#planner.extractPathEndingAtCoord((20,10))
 #planner.extractPathEndingAtCoord((2,10))
 #planner.extractPathEndingAtCoord((8,13))
 

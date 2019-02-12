@@ -10,8 +10,8 @@ from math import *
 
 class ASTARMANPlanner(CellBasedForwardSearch):
 
-    # Define C the cost to goal as class variable.
-    C = 1
+    # Define the weight
+    weight = 1
 
     # Construct the new planner object
     def __init__(self, title, occupancyGrid):
@@ -22,7 +22,7 @@ class ASTARMANPlanner(CellBasedForwardSearch):
     def pushCellOntoQueue(self, cell):
 	self.astarMANQueue.append(cell)
 	if(cell.parent != None):
-		cell.pathCost = cell.parent.pathCost + self.computeLStageAdditiveCost(cell.parent,cell) + self.MANHATTENdist(self.goal,cell) 
+		cell.pathCost = cell.parent.pathCost + self.computeLStageAdditiveCost(cell.parent,cell) + self.weight * self.MANHATTENdist(self.goal,cell) 
 	self.astarMANQueue.sort(key = self.distance)
 
     # Check the queue size is zero
@@ -37,7 +37,7 @@ class ASTARMANPlanner(CellBasedForwardSearch):
     # If a cell is visited again replace the previous parent cell with current 
     # parent cell if the cost to come + cost to goal is lower for the current parent.
     def resolveDuplicate(self, cell, parentCell):
-	predicted_path_cost = parentCell.pathCost + self.computeLStageAdditiveCost(parentCell,cell) + self.MANHATTENdist(self.goal,cell) 
+	predicted_path_cost = parentCell.pathCost + self.computeLStageAdditiveCost(parentCell,cell) + self.weight * self.MANHATTENdist(self.goal,cell) 
 	if(predicted_path_cost < cell.pathCost):
 		cell.parent = parentCell
 		cell.pathCost = predicted_path_cost
