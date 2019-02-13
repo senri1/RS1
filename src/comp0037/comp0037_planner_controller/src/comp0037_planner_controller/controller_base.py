@@ -73,20 +73,251 @@ class ControllerBase(object):
         self.plannerDrawer = plannerDrawer
 
         rospy.loginfo('Driving path to goal with ' + str(len(path.waypoints)) + ' waypoint(s)')
-        
+        path_distance = 0
+        path_theta = 0
+        time_count= 0
         # Drive to each waypoint in turn
         for waypointNumber in range(0, len(path.waypoints)):
             cell = path.waypoints[waypointNumber]
             waypoint = self.occupancyGrid.getWorldCoordinatesFromCellCoordinates(cell.coords)
             rospy.loginfo("Driving to waypoint (%f, %f)", waypoint[0], waypoint[1])
-            self.driveToWaypoint(waypoint)
+            distance,theta,time = self.driveToWaypoint(waypoint)
+            path_distance = path_distance +distance
+            path_theta = path_theta + theta
+            time_count = time_count + time
             # Handle ^C
             if rospy.is_shutdown() is True:
                 break
-
+        
         rospy.loginfo('Rotating to goal orientation (' + str(goalOrientation) + ')')
         
         # Finish off by rotating the robot to the final configuration
         if rospy.is_shutdown() is False:
-            self.rotateToGoalOrientation(goalOrientation)
- 
+            goal_theta,time_theta = self.rotateToGoalOrientation(goalOrientation)
+            path_theta = path_theta + goal_theta
+            time_count = time_count+time_theta
+        time_second = (time_count) * 0.1
+        print('Distance Travelled ='+str(path_distance))
+        print('Theta Turned ='+str(path_theta))
+        print('Time ='+str(time_second))
+
+class CustomControllerBase(object):
+
+    def __init__(self, occupancyGrid):
+
+        rospy.wait_for_message('/robot0/odom', Odometry)
+
+        # Create the node, publishers and subscriber
+        self.velocityPublisher = rospy.Publisher('/robot0/cmd_vel', Twist, queue_size=10)
+        self.currentOdometrySubscriber = rospy.Subscriber('/robot0/odom', Odometry, self.odometryCallback)
+
+        # Specification of accuracy. The first is the Euclidean
+        # distance from the target within which the robot is assumed
+        # to be there. The second is the angle. The latter is turned
+        # into radians for ease of the controller.
+        self.distanceErrorTolerance = rospy.get_param('distance_error_tolerance', 0.05)
+        self.goalAngleErrorTolerance = math.radians(rospy.get_param('goal_angle_error_tolerance', 0.1))
+
+        # Set the pose to an initial value to stop things crashing
+        self.pose = Pose2D()
+
+        # Store the occupany grid - used to transform from cell
+        # coordinates to world driving coordinates.
+        self.occupancyGrid = occupancyGrid
+        
+        # This is the rate at which we broadcast updates to the simulator in Hz.
+        self.rate = rospy.Rate(10)
+
+    # Get the pose of the robot. Store this in a Pose2D structure because
+    # this is easy to use. Use radians for angles because these are used
+    # inside the control system.
+    def odometryCallback(self, odometry):
+        odometryPose = odometry.pose.pose
+
+        pose = Pose2D()
+
+        position = odometryPose.position
+        orientation = odometryPose.orientation
+        
+        pose.x = position.x
+        pose.y = position.y
+        pose.theta = 2 * atan2(orientation.z, orientation.w)
+        self.pose = pose
+
+    # Return the most up-to-date pose of the robot
+    def getCurrentPose(self):
+        return self.pose
+
+    # Handle the logic of driving the robot to the next waypoint
+    def driveToWaypoint(self, waypoint):
+        raise NotImplementedError()
+
+    # Handle the logic of rotating the robot to its final orientation
+    def rotateToGoalOrientation(self, waypoint):
+        raise NotImplementedError()
+
+    # Drive to each waypoint in turn. Unfortunately we have to add
+    # the planner drawer because we have to keep updating it to
+    # make sure the graphics are redrawn properly.
+    def drivePathToGoal(self, path, goalOrientation, plannerDrawer):
+        self.plannerDrawer = plannerDrawer
+
+        rospy.loginfo('Driving path to goal with ' + str(len(path.waypoints)) + ' waypoint(s)')
+        path_distance = 0
+        path_theta = 0
+        time_count= 0
+        turn_time = input('Input Turning Time for each Waypoint (Enter 0.5s for demonstration):')
+        move_time = input('Input Moving Time for each Waypoint (Enter 0.5s for demonstration):')
+        speed_ratio = input('Input Ratio for two speed steps (Enter 2 for demonstration):')
+        # Drive to each waypoint in turn
+        for waypointNumber in range(0, len(path.waypoints)):
+            cell = path.waypoints[waypointNumber]
+            waypoint = self.occupancyGrid.getWorldCoordinatesFromCellCoordinates(cell.coords)
+            rospy.loginfo("Driving to waypoint (%f, %f)", waypoint[0], waypoint[1])
+            distance,theta,time = self.driveToWaypoint(waypoint,turn_time,move_time,speed_ratio)
+            path_distance = path_distance +distance
+            path_theta = path_theta + theta
+            time_count = time_count + time
+            # Handle ^C
+            if rospy.is_shutdown() is True:
+                break
+        
+        rospy.loginfo('Rotating to goal orientation (' + str(goalOrientation) + ')')
+        
+        # Finish off by rotating the robot to the final configuration
+        if rospy.is_shutdown() is False:
+            goal_theta,time_theta = self.rotateToGoalOrientation(goalOrientation)
+            path_theta = path_theta + goal_theta
+            time_count = time_count+time_theta
+        time_second = (time_count) * 0.1
+        print('Distance Travelled ='+str(path_distance))
+        print('Theta Turned ='+str(path_theta))
+        print('Time ='+str(time_second))
+
+class ImprovedControllerBase(object):
+
+    def __init__(self, occupancyGrid):
+
+        rospy.wait_for_message('/robot0/odom', Odometry)
+
+        # Create the node, publishers and subscriber
+        self.velocityPublisher = rospy.Publisher('/robot0/cmd_vel', Twist, queue_size=10)
+        self.currentOdometrySubscriber = rospy.Subscriber('/robot0/odom', Odometry, self.odometryCallback)
+
+        # Specification of accuracy. The first is the Euclidean
+        # distance from the target within which the robot is assumed
+        # to be there. The second is the angle. The latter is turned
+        # into radians for ease of the controller.
+        self.distanceErrorTolerance = rospy.get_param('distance_error_tolerance', 0.05)
+        self.goalAngleErrorTolerance = math.radians(rospy.get_param('goal_angle_error_tolerance', 0.1))
+
+        # Set the pose to an initial value to stop things crashing
+        self.pose = Pose2D()
+
+        # Store the occupany grid - used to transform from cell
+        # coordinates to world driving coordinates.
+        self.occupancyGrid = occupancyGrid
+        
+        # This is the rate at which we broadcast updates to the simulator in Hz.
+        self.rate = rospy.Rate(10)
+
+    # Get the pose of the robot. Store this in a Pose2D structure because
+    # this is easy to use. Use radians for angles because these are used
+    # inside the control system.
+    def odometryCallback(self, odometry):
+        odometryPose = odometry.pose.pose
+
+        pose = Pose2D()
+
+        position = odometryPose.position
+        orientation = odometryPose.orientation
+        
+        pose.x = position.x
+        pose.y = position.y
+        pose.theta = 2 * atan2(orientation.z, orientation.w)
+        self.pose = pose
+
+    # Return the most up-to-date pose of the robot
+    def getCurrentPose(self):
+        return self.pose
+
+    # Handle the logic of driving the robot to the next waypoint
+    def driveToWaypoint(self, waypoint):
+        raise NotImplementedError()
+
+    # Handle the logic of rotating the robot to its final orientation
+    def rotateToGoalOrientation(self, waypoint):
+        raise NotImplementedError()
+
+    # Drive to each waypoint in turn. Unfortunately we have to add
+    # the planner drawer because we have to keep updating it to
+    # make sure the graphics are redrawn properly.
+    def drivePathToGoal(self, path, goalOrientation, plannerDrawer):
+        self.plannerDrawer = plannerDrawer
+
+        rospy.loginfo('Driving path to goal with ' + str(len(path.waypoints)) + ' waypoint(s)')
+        path_distance = 0
+        path_theta = 0
+        time_count= 0
+        # Drive to each waypoint in turn
+        x = []
+        y = []
+        catch = False
+        for waypointNumber in range(0, len(path.waypoints)):
+            cell = path.waypoints[waypointNumber]
+            waypoint = self.occupancyGrid.getWorldCoordinatesFromCellCoordinates(cell.coords)
+            x.append(waypoint[0])
+            y.append(waypoint[1])
+        # print('Len x',len(x))
+        # print('Len y',len(y))
+        # print('Initial x:',x)
+        # print('Initial y:',y)
+        # Combine Multiple Straight Waypoint into 2 straight waypoints
+
+        while catch == False:
+            try:
+                for i in range(len(x)):
+                    # print(x[i],y[i])
+                    # print(x[i+1],y[i+1])
+                    # print(i)
+                    # print(len(x))
+                    # if i+2 == len(x):
+                    #     catch = True
+                    #     break
+                    if abs(x[i+2] - x[i]) < self.distanceErrorTolerance:
+                        print('If x equal:')
+                        x.remove(x[i+1])
+                        y.remove(y[i+1])
+                        break
+                    elif abs(y[i+2] - y[i]) < self.distanceErrorTolerance:
+                        print('If y equal:')
+                        x.remove(x[i+1])
+                        y.remove(y[i+1])
+                        break
+                    else:
+                        continue
+            except IndexError:
+                catch = True  
+        # print('Final x:',x)
+        # print('Final y:',y)
+        for i in range(len(x)):
+            waypoint=[x[i],y[i]]
+            rospy.loginfo("Driving to waypoint (%f, %f)", waypoint[0], waypoint[1])
+            distance,theta,time = self.driveToWaypoint(waypoint)
+            path_distance = path_distance +distance
+            path_theta = path_theta + theta
+            time_count = time_count + time
+        # Handle ^C
+        
+        
+        rospy.loginfo('Rotating to goal orientation (' + str(goalOrientation) + ')')
+        
+        # Finish off by rotating the robot to the final configuration
+        if rospy.is_shutdown() is False:
+            goal_theta,time_theta = self.rotateToGoalOrientation(goalOrientation)
+            path_theta = path_theta + goal_theta
+            time_count = time_count+time_theta
+        time_second = (time_count) * 0.1
+        print('Distance Travelled ='+str(path_distance))
+        print('Theta Turned ='+str(path_theta))
+        print('Time ='+str(time_second))

@@ -4,7 +4,7 @@ from geometry_msgs.msg  import Twist
 from geometry_msgs.msg  import Pose
 from math import pow,atan2,sqrt
 from comp0037_planner_controller.planned_path import PlannedPath
-from comp0037_planner_controller.controller_base import ControllerBase
+from comp0037_planner_controller.controller_base import ImprovedControllerBase
 import math
 import angles
 
@@ -13,10 +13,10 @@ import angles
 # the correct direction and then keeps driving. It monitors the
 # angular error and trims it as it goes.
 
-class Move2GoalController(ControllerBase):
+class ImprovedController(ImprovedControllerBase):
 
     def __init__(self, occupancyGrid):
-        ControllerBase.__init__(self, occupancyGrid)
+        ImprovedControllerBase.__init__(self, occupancyGrid)
         
         # Get the proportional gain settings
         self.distanceErrorGain = rospy.get_param('distance_error_gain', 1)
