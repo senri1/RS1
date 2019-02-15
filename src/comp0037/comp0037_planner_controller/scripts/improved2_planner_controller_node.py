@@ -18,10 +18,11 @@ from comp0037_planner_controller.occupancy_grid import OccupancyGrid
 
 # The planner used to figure out the path
 from comp0037_planner_controller.fifo_planner import FIFOPlanner
+from comp0037_planner_controller.greedy_planner import GREEDYPlanner
 from comp0037_planner_controller.dijkstra_planner import DIJKSTRAPlanner
 
 # The controller to drive the robot along the path
-from comp0037_planner_controller.move2goal_controller import Move2GoalController
+from comp0037_planner_controller.improved2_controller import Improved2Controller
 
 # Self class interfaces with the planner and the controller
 class PlannerControllerNode(object):
@@ -59,7 +60,7 @@ class PlannerControllerNode(object):
         self.planner.windowHeightInPixels = rospy.get_param('maximum_window_height_in_pixels', 700)
         
     def createRobotController(self):
-        self.robotController = Move2GoalController(self.occupancyGrid)
+        self.robotController = Improved2Controller(self.occupancyGrid)
 
     def handleDriveToGoal(self, goal):
         # Report to the main loop that we have a new goal

@@ -4,7 +4,7 @@ from geometry_msgs.msg  import Twist
 from geometry_msgs.msg  import Pose
 from math import pow,atan2,sqrt
 from comp0037_planner_controller.planned_path import PlannedPath
-from comp0037_planner_controller.controller_base import ImprovedControllerBase
+from comp0037_planner_controller.controller_base import Improved2ControllerBase
 import math
 import angles
 
@@ -13,10 +13,10 @@ import angles
 # the correct direction and then keeps driving. It monitors the
 # angular error and trims it as it goes.
 
-class ImprovedController(ImprovedControllerBase):
+class Improved2Controller(Improved2ControllerBase):
 
     def __init__(self, occupancyGrid):
-        ImprovedControllerBase.__init__(self, occupancyGrid)
+        Improved2ControllerBase.__init__(self, occupancyGrid)
         
         # Get the proportional gain settings
         self.distanceErrorGain = rospy.get_param('distance_error_gain', 1)
@@ -36,7 +36,7 @@ class ImprovedController(ImprovedControllerBase):
             delta = delta - 2.0*math.pi
         return delta
         
-    def driveToWaypoint(self, waypoint):
+    def driveToWaypoint(self, waypoint,waypoint1):
         vel_msg = Twist()
 
         dX = waypoint[0] - self.pose.x
@@ -48,7 +48,7 @@ class ImprovedController(ImprovedControllerBase):
         init_de = distanceError
         init_ae = angleError
         time_count = 0
-        while (distanceError >= self.distanceErrorTolerance) & (not rospy.is_shutdown()):
+        while (distanceError >= init_de*0.15) & (not rospy.is_shutdown()):
             print("Current Pose: x: {}, y:{} , theta: {}\nGoal: x: {}, y: {}\n".format(self.pose.x, self.pose.y,
                                                                                        self.pose.theta, waypoint[0],
                                                                                          waypoint[1]))
@@ -57,11 +57,7 @@ class ImprovedController(ImprovedControllerBase):
             # linear velocity in the x-axis: only switch on when the angular error is sufficiently small
             if math.fabs(angleError) < self.driveAngleErrorTolerance:
                 
-                if max(0.0, min(self.distanceErrorGain * distanceError, 10.0)) > 3:
-                    vx = 3
-                else:
-                    vx = max(0.0, min(self.distanceErrorGain * distanceError, 10.0))
-                vel_msg.linear.x = vx
+                vel_msg.linear.x = init_de
                 vel_msg.linear.y = 0
                 vel_msg.linear.z = 0
                 
@@ -90,7 +86,52 @@ class ImprovedController(ImprovedControllerBase):
             distanceError = sqrt(pow((waypoint[0] - self.pose.x), 2) + pow((waypoint[1] - self.pose.y), 2))
             angleError = self.shortestAngularDistance(self.pose.theta,
                                                       atan2(waypoint[1] - self.pose.y, waypoint[0] - self.pose.x))
+        if waypoint1 == [0,0]:
+            dX1 = dX
+            dY1 = dY
+        else:
+            dX1 = waypoint1[0] - self.pose.x
+            dY1 = waypoint1[1] - self.pose.y
 
+        while (distanceError >= self.distanceErrorTolerance) & (not rospy.is_shutdown()):
+            print("Current Pose: x: {}, y:{} , theta: {}\nGoal: x: {}, y: {}\n".format(self.pose.x, self.pose.y,
+                                                                                       self.pose.theta, waypoint[0],
+                                                                                         waypoint[1]))
+            print("Distance Error: {}\nAngular Error: {}".format(distanceError, angleError))  
+            # Proportional Controller
+            # linear velocity in the x-axis: only switch on when the angular error is sufficiently small
+            if math.fabs(angleError) < self.driveAngleErrorTolerance:
+                
+                vel_msg.linear.x = init_de*0.5
+                vel_msg.linear.y = 0
+                vel_msg.linear.z = 0
+                
+
+
+            # angular velocity in the z-axis:
+            vel_msg.angular.x = 0
+            vel_msg.angular.y = 0
+            vel_msg.angular.z = max(-5.0, min(self.angleErrorGain * NangleError, 5.0))
+            
+            
+            print("Linear Velocity: {}\nAngular Velocity: {}\n\n".format(vel_msg.linear.x, math.degrees(vel_msg.angular.z)))
+            # Publishing our vel_msg
+            self.velocityPublisher.publish(vel_msg)
+            if (self.plannerDrawer is not None):
+                self.plannerDrawer.flushAndUpdateWindow()
+            time_count = time_count + 1
+            print(time_count)    
+            self.rate.sleep()
+            # print('Position:')
+            # print(self.pose.theta)
+            # print(self.pose.x)
+            # print(self.pose.y)
+            # print('Distance Moved:') 
+            # print(sqrt(pow((init_pos_x - self.pose.x), 2) + pow((init_pos_y - self.pose.y), 2))) 
+            distanceError = sqrt(pow((waypoint[0] - self.pose.x), 2) + pow((waypoint[1] - self.pose.y), 2))
+            angleError = self.shortestAngularDistance(self.pose.theta,
+                                                      atan2(waypoint[1] - self.pose.y, waypoint[0] - self.pose.x))
+        NangleError = self.shortestAngularDistance(self.pose.theta, atan2(dY1, dX1))
         # Make sure the robot is stopped once we reach the destination.
         print(init_de)
         print(distanceError)
@@ -98,9 +139,10 @@ class ImprovedController(ImprovedControllerBase):
         print(angleError)
         total_distance = init_de - distanceError
         total_theta = abs(init_ae)
-        vel_msg.linear.x = 0
-        vel_msg.angular.z = 0
-        self.velocityPublisher.publish(vel_msg)
+        if waypoint1 == [0,0]:
+            vel_msg.linear.x = 0
+            vel_msg.angular.z = 0
+            self.velocityPublisher.publish(vel_msg)
         print('Waypoint Distance:')
         print(total_distance)
         print(total_theta)

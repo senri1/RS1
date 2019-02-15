@@ -22,7 +22,7 @@ import angles
 class CustomController(CustomControllerBase):
 
     def __init__(self, occupancyGrid):
-        ControllerBase.__init__(self, occupancyGrid)
+        CustomControllerBase.__init__(self, occupancyGrid)
         
         # Get the proportional gain settings
         self.distanceErrorGain = rospy.get_param('distance_error_gain', 1)
