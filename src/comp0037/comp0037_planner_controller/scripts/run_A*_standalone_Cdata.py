@@ -20,7 +20,7 @@ with open('Astar_Cdata','wb') as myfile:
 	
 	for i in range(0,21):
 
-		weight = float(i)/3
+		weight = float(i)/2
 		title = 'A* C = ' + str(weight)
 		# *** Leave only the planner you want to use uncommented. ***
 	
