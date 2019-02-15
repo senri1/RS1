@@ -166,8 +166,8 @@ class CustomControllerBase(object):
         path_distance = 0
         path_theta = 0
         time_count= 0
-        turn_time = input('Input Turning Time for each Waypoint (Enter 0.5s for demonstration):')
-        move_time = input('Input Moving Time for each Waypoint (Enter 0.5s for demonstration):')
+        turn_time = input('Input Turning Time for each Waypoint (Enter 0.5 for demonstration):')
+        move_time = input('Input Moving Time for each Waypoint (Enter 0.5 for demonstration):')
         speed_ratio = input('Input Ratio for two speed steps (Enter 2 for demonstration):')
         # Drive to each waypoint in turn
         for waypointNumber in range(0, len(path.waypoints)):

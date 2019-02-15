@@ -6,7 +6,7 @@ from comp0037_planner_controller.dijkstra_planner import DIJKSTRAPlanner
 
 occupancyGrid = OccupancyGrid(21, 21, 0.5)
 
-for y in xrange(0, 19):
+for y in xrange(0, 20):
 	occupancyGrid.setCell(11, y, 1)
 
 start = (3, 18)

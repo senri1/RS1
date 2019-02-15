@@ -110,6 +110,7 @@ class GeneralForwardSearchAlgorithm(PlannerBase):
         self.start = self.searchGrid.getCellFromCoords(startCoords)
         self.start.label = CellLabel.START
         self.start.pathCost = 0
+	self.start.costToCome = 0
 
         # Get the goal cell object and label it.
         self.goal = self.searchGrid.getCellFromCoords(goalCoords)
@@ -220,7 +221,7 @@ class GeneralForwardSearchAlgorithm(PlannerBase):
 	print "Total angle turned in degrees = " + str(degrees(path.angleTurned))
         
         # Draw the path if requested
-        if (self.showGraphics == True):
+        if (self.showGraphics == False):
             self.plannerDrawer.update()
             self.plannerDrawer.drawPathGraphicsWithCustomColour(path, colour)
             self.plannerDrawer.waitForKeyPress()

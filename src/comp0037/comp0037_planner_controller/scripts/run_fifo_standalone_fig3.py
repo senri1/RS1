@@ -12,12 +12,12 @@ occupancyGrid = OccupancyGrid(21, 21, 0.5)
 # Set the state of the cells in the range [11,1]-[11,19] to be occupied.
 # This corresponds to the "easy case" in the lectures
 
-for y in xrange(1, 19):
-    occupancyGrid.setCell(11, y, 1)
+#for y in xrange(1, 19):
+#    occupancyGrid.setCell(11, y, 1)
 
 # Start and goal cells
-start = (3, 18)
-goal = (20, 0)
+start = (10, 10)
+goal = (18, 10)
 
 # Create the planner. The first field is the title which will appear in the
 # graphics window, the second the occupancy grid used.
