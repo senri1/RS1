@@ -8,6 +8,9 @@ from comp0037_planner_controller.astar_L2_planner import ASTARL2Planner
 from comp0037_planner_controller.astar_octile_planner import ASTAROCTILEPlanner
 from comp0037_planner_controller.astar_manhatten_planner import ASTARMANPlanner
 
+
+# This script just collects data for different weight values with the Euclidean heuristic
+
 occupancyGrid = OccupancyGrid(21, 21, 0.5)
 
 for y in xrange(0, 19):
@@ -22,21 +25,12 @@ with open('Astar_EUCLIDEANdata','wb') as myfile:
 
 		weight = float(i)/2
 		title = 'A* Euclidean k = ' + str(weight)
-		# *** Leave only the planner you want to use uncommented. ***
-	
-		#planner = ASTAR0Planner(title, occupancyGrid);
-		#planner = ASTARCPlanner(title, occupancyGrid);
 		planner = ASTARL2Planner(title, occupancyGrid);
-		#planner = ASTAROCTILEPlanner(title, occupancyGrid);
-		#planner = ASTARMANPlanner(title, occupancyGrid);
-	
-		# *** Leave only the planner you want to use uncommented. ***
+
 		planner.weight = weight
-		#planner.setRunInteractively(True)
-		#planner.setWindowHeightInPixels(400)
 		goalReached = planner.search(start, goal)
 		path = planner.extractPathToGoal()
 		
-		data = [weight,path.travelCost,path.angleTurned]
+		data = [weight,path.travelCost,path.angleTurned,planner.numberOfCellsVisited]
 		wr = csv.writer(myfile,quoting=csv.QUOTE_ALL)
 		wr.writerow(data)

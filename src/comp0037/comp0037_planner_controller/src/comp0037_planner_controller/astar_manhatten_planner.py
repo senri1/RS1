@@ -4,7 +4,7 @@ from cell_based_forward_search import CellBasedForwardSearch
 from collections import deque
 from math import *
 
-# This class implements the A* planning algorithm with the octile distance to the goal
+# This class implements the A* planning algorithm with the manhatten distance to the goal
 # as the cost to goal value.
 
 

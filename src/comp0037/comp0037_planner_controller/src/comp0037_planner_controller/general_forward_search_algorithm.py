@@ -221,7 +221,7 @@ class GeneralForwardSearchAlgorithm(PlannerBase):
 	print "Total angle turned in degrees = " + str(degrees(path.angleTurned))
         
         # Draw the path if requested
-        if (self.showGraphics == False):
+        if (self.showGraphics == True):
             self.plannerDrawer.update()
             self.plannerDrawer.drawPathGraphicsWithCustomColour(path, colour)
             self.plannerDrawer.waitForKeyPress()

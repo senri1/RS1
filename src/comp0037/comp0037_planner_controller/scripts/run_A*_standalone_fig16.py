@@ -9,26 +9,17 @@ from comp0037_planner_controller.astar_manhatten_planner import ASTARMANPlanner
 
 occupancyGrid = OccupancyGrid(21, 21, 0.5)
 
-for y in xrange(0, 19):
-   occupancyGrid.setCell(11, y, 1)
+#for y in xrange(1, 19):
+#    occupancyGrid.setCell(11, y, 1)
 
-start = (3, 18)
-goal = (20, 0)
+start = (1, 1)
+goal = (20, 20)
 
+planner = ASTAROCTILEPlanner('A* Octile', occupancyGrid);
 
-title = 'A*  ' 
-	# *** Leave only the planner you want to use uncommented. ***
-
-#planner = ASTAR0Planner('A* 0', occupancyGrid);
-#planner = ASTARCPlanner(title, occupancyGrid);
-#planner = ASTARL2Planner(title, occupancyGrid);
-#planner = ASTAROCTILEPlanner('A* Octile', occupancyGrid);
-#planner = ASTARMANPlanner('A* Manhatten', occupancyGrid);
-
-	# *** Leave only the planner you want to use uncommented. ***
-#planner.weight = 1
 planner.setRunInteractively(True)
 planner.setWindowHeightInPixels(400)
 goalReached = planner.search(start, goal)
 path = planner.extractPathToGoal()
+
 

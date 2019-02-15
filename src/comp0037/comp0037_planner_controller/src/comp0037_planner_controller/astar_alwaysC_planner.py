@@ -3,7 +3,7 @@
 from cell_based_forward_search import CellBasedForwardSearch
 from collections import deque
 
-# This class implements the A* planning algorithm with the euclidean distance to the goal
+# This class implements the A* planning algorithm with a constant distance to the goal
 # as the cost to goal value.
 
 
