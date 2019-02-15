@@ -249,25 +249,7 @@ class ImprovedControllerBase(object):
     def rotateToGoalOrientation(self, waypoint):
         raise NotImplementedError()
 
-    # Drive to each waypoint in turn. Unfortunately we have to add
-    # the planner drawer because we have to keep updating it to
-    # make sure the graphics are redrawn properly.
-    # def shortAngleDistance(self,fromAngle, toAngle):
-    #     delta = toAngle - fromAngle
-    #     if (delta < -math.pi):
-    #         delta = delta + 2.0*math.pi
-    #     elif(delta > math.pi):
-    #         delta = delta - 2.0*math.pi
-    #     return delta
-    # def compareTheta(self,x1,y1,x2,y2):
-    #     theta1 = math.tan(x1/y1)
-    #     theta2 = math.tan(x2/y2)
-    #     print(theta1,theta2)
-    #     if self.shortAngleDistance(theta1,theta2) < self.goalAngleErrorTolerance :
-    #         return True
-    #     else:
-    #         return False
-
+    
 
 
     def drivePathToGoal(self, path, goalOrientation, plannerDrawer):
@@ -295,34 +277,18 @@ class ImprovedControllerBase(object):
         while catch == False:
             try:
                 for i in range(len(x)):
-                    # print(x[i],y[i])
-                    # print(x[i+1],y[i+1])
-                    # print(i)
-                    # print(len(x))
-                    # if i+2 == len(x):
-                    #     catch = True
-                    #     break
-                    if abs(x[i+2] - x[i]) == 0:
-                        print('If x equal:')
-                        x.remove(x[i+1])
-                        y.remove(y[i+1])
+                    if x[i+2] - x[i] == 0:
+                        del x[i+1]
+                        del y[i+1]
                         break
-                    elif abs(y[i+2] - y[i]) == 0:
-                        print('If y equal:')
-                        x.remove(x[i+1])
-                        y.remove(y[i+1])
+                    elif y[i+2] - y[i] == 0:
+                        del x[i+1]
+                        del y[i+1]
                         break
-                    # elif self.compareTheta(x[i],y[i],x[i+2],y[i+2]) and self.compareTheta(x[i],y[i],x[i+1],y[i+1]):
-                    #     x.remove(x[i+1])
-                    #     y.remove(y[i+1])
-                    #     break
                     else:
                         continue
             except IndexError:
                 catch = True  
-        # print('Final x:',x)
-        # print('Final y:',y)
-
 
         for i in range(len(x)):
             waypoint=[x[i],y[i]]
