@@ -57,7 +57,11 @@ class ImprovedController(ImprovedControllerBase):
             # linear velocity in the x-axis: only switch on when the angular error is sufficiently small
             if math.fabs(angleError) < self.driveAngleErrorTolerance:
                 
-                vel_msg.linear.x = max(0.0, min(self.distanceErrorGain * distanceError, 10.0))
+                if max(0.0, min(self.distanceErrorGain * distanceError, 10.0)) > 3:
+                    vx = 3
+                else:
+                    vx = max(0.0, min(self.distanceErrorGain * distanceError, 10.0))
+                vel_msg.linear.x = vx
                 vel_msg.linear.y = 0
                 vel_msg.linear.z = 0
                 

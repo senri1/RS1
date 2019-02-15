@@ -290,7 +290,7 @@ class ImprovedControllerBase(object):
         # print('Len y',len(y))
         # print('Initial x:',x)
         # print('Initial y:',y)
-        # Combine Multiple Straight Waypoint into 2 straight waypoints
+        # Combine Multiple Straight Waypoints into 2 straight waypoints
         catch = False    
         while catch == False:
             try:
@@ -302,12 +302,12 @@ class ImprovedControllerBase(object):
                     # if i+2 == len(x):
                     #     catch = True
                     #     break
-                    if abs(x[i+2] - x[i]) < self.distanceErrorTolerance:
+                    if abs(x[i+2] - x[i]) == 0:
                         print('If x equal:')
                         x.remove(x[i+1])
                         y.remove(y[i+1])
                         break
-                    elif abs(y[i+2] - y[i]) < self.distanceErrorTolerance:
+                    elif abs(y[i+2] - y[i]) == 0:
                         print('If y equal:')
                         x.remove(x[i+1])
                         y.remove(y[i+1])

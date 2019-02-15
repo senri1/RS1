@@ -54,8 +54,8 @@ class PlannerControllerNode(object):
         self.occupancyGrid.expandObstaclesToAccountForCircularRobotOfRadius(0.2)
 
     def createPlanner(self):
-        #self.planner = FIFOPlanner('FIFO', self.occupancyGrid)
-        self.planner = DIJKSTRAPlanner('Dijkstra', self.occupancyGrid)
+        self.planner = FIFOPlanner('FIFO', self.occupancyGrid)
+        # self.planner = DIJKSTRAPlanner('Dijkstra', self.occupancyGrid)
         self.planner.setPauseTime(0)
         self.planner.windowHeightInPixels = rospy.get_param('maximum_window_height_in_pixels', 700)
         
