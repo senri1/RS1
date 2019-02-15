@@ -10,7 +10,7 @@ from collections import deque
 class ASTARL2Planner(CellBasedForwardSearch):
 
     # Define the weight
-    weight = 1	
+    weight = 1
 
     # Construct the new planner object
     def __init__(self, title, occupancyGrid):
@@ -20,8 +20,11 @@ class ASTARL2Planner(CellBasedForwardSearch):
     # Add cell to list, then sort the list based on the cost to come + cost to goal value
     def pushCellOntoQueue(self, cell):
 	self.astarL2Queue.append(cell)
+	cell.costToGo = self.computeLStageAdditiveCost(self.goal,cell)
+	cell.pathCost = cell.costToGo
 	if(cell.parent != None):
-		cell.pathCost = cell.parent.pathCost + self.computeLStageAdditiveCost(cell.parent,cell) + self.weight * self.computeLStageAdditiveCost(self.goal,cell) 
+		cell.costToCome = cell.parent.costToCome + self.computeLStageAdditiveCost(cell.parent,cell) 
+		cell.pathCost =  cell.costToCome + self.weight * cell.costToGo
 	self.astarL2Queue.sort(key = self.distance)
 
     # Check the queue size is zero
@@ -36,10 +39,15 @@ class ASTARL2Planner(CellBasedForwardSearch):
     # If a cell is visited again replace the previous parent cell with current 
     # parent cell if the cost to come + cost to goal is lower for the current parent.
     def resolveDuplicate(self, cell, parentCell):
-	predicted_path_cost = parentCell.pathCost + self.computeLStageAdditiveCost(parentCell,cell) + self.weight * self.computeLStageAdditiveCost(self.goal,cell) 
-	if(predicted_path_cost < cell.pathCost):
+
+	costToCome = parentCell.costToCome + self.computeLStageAdditiveCost(parentCell,cell)
+	costToGo = self.computeLStageAdditiveCost(self.goal,cell) 
+	predicted_path_cost = costToCome + self.weight * costToGo
+
+	if(costToCome < cell.costToCome):
 		cell.parent = parentCell
 		cell.pathCost = predicted_path_cost
+		cell.costToCome = costToCome
 		self.astarL2Queue.sort(key = self.distance)        
 
     # Return the cost to come + cost to goal to use for sorting queue 	

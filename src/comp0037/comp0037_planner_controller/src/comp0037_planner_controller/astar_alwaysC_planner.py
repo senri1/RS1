@@ -3,14 +3,14 @@
 from cell_based_forward_search import CellBasedForwardSearch
 from collections import deque
 
-# This class implements the A* planning algorithm with a constant 'C' cost to goal value.
-# 
+# This class implements the A* planning algorithm with the euclidean distance to the goal
+# as the cost to goal value.
 
 
 class ASTARCPlanner(CellBasedForwardSearch):
 
-    # Define C the cost to goal as class variable.
-    C = 1
+    # Define the weight
+    C=1
 
     # Construct the new planner object
     def __init__(self, title, occupancyGrid):
@@ -20,8 +20,11 @@ class ASTARCPlanner(CellBasedForwardSearch):
     # Add cell to list, then sort the list based on the cost to come + cost to goal value
     def pushCellOntoQueue(self, cell):
 	self.astarCQueue.append(cell)
+	cell.costToGo = self.C
+	cell.pathCost = cell.costToGo
 	if(cell.parent != None):
-		cell.pathCost = cell.parent.pathCost + self.computeLStageAdditiveCost(cell.parent,cell) + self.C 
+		cell.costToCome = cell.parent.costToCome + self.computeLStageAdditiveCost(cell.parent,cell) 
+		cell.pathCost =  cell.costToCome +  cell.costToGo
 	self.astarCQueue.sort(key = self.distance)
 
     # Check the queue size is zero
@@ -36,10 +39,15 @@ class ASTARCPlanner(CellBasedForwardSearch):
     # If a cell is visited again replace the previous parent cell with current 
     # parent cell if the cost to come + cost to goal is lower for the current parent.
     def resolveDuplicate(self, cell, parentCell):
-	predicted_path_cost = parentCell.pathCost + self.computeLStageAdditiveCost(parentCell,cell) + self.C
-	if(predicted_path_cost < cell.pathCost):
+
+	costToCome = parentCell.costToCome + self.computeLStageAdditiveCost(parentCell,cell)
+	costToGo = self.C
+	predicted_path_cost = costToCome + costToGo
+
+	if(costToCome < cell.costToCome):
 		cell.parent = parentCell
 		cell.pathCost = predicted_path_cost
+		cell.costToCome = costToCome
 		self.astarCQueue.sort(key = self.distance)        
 
     # Return the cost to come + cost to goal to use for sorting queue 	

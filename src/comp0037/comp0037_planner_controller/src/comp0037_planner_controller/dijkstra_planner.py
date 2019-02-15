@@ -41,5 +41,7 @@ class DIJKSTRAPlanner(CellBasedForwardSearch):
     # Return the pathcost from the start cell to the current cell	
     def distance(self,cell):
 	return cell.pathCost
+
+
 		
 

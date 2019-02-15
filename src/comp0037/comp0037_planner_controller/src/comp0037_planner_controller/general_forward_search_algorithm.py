@@ -110,6 +110,7 @@ class GeneralForwardSearchAlgorithm(PlannerBase):
         self.start = self.searchGrid.getCellFromCoords(startCoords)
         self.start.label = CellLabel.START
         self.start.pathCost = 0
+	self.start.costToCome = 0
 
         # Get the goal cell object and label it.
         self.goal = self.searchGrid.getCellFromCoords(goalCoords)
